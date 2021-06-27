@@ -7,5 +7,4 @@ import 'package:provider/provider.dart';
 export 'package:manager/manager.dart' show Manager;
 part 'src/models/managerModel.dart';
 part 'src/models/task.dart';
-part 'src/models/collectionmanager.dart';
 part 'src/widgets/managerBuilder.dart';
