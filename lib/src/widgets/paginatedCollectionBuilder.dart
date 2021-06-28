@@ -1,6 +1,6 @@
 part of manager;
 
-class PaginatedCollectionBuilder<T extends CollectionManager<Model>, Model> extends StatefulWidget {
+class PaginatedCollectionBuilder<T extends PaginatedManager<Model>, Model> extends StatefulWidget {
 
 
   PaginatedCollectionBuilder({
@@ -16,6 +16,7 @@ class PaginatedCollectionBuilder<T extends CollectionManager<Model>, Model> exte
     required this.itemBuilder,
     this.pageFactor = 10,
     this.gridDelegate,
+    this.filter,
     this.emptyWidget = const SliverToBoxAdapter()
 
   }) 
@@ -26,6 +27,7 @@ class PaginatedCollectionBuilder<T extends CollectionManager<Model>, Model> exte
   final EdgeInsets contentPadding;
   final Widget loaderWidget;
   final Widget loadMoreWidget;
+  final List<Model> Function(List<Model> m)? filter;
   final SliverGridDelegate? gridDelegate;
   final Widget Function(void Function() closure) errorWidget;
   final Widget Function(void Function() closure) errorOnLoadMoreWidget;
@@ -35,13 +37,26 @@ class PaginatedCollectionBuilder<T extends CollectionManager<Model>, Model> exte
   final Widget emptyWidget;
 
   @override
-  _PaginatedCollectionBuilderState<T,Model> createState() => _PaginatedCollectionBuilderState();
+  _PaginatedCollectionBuilderState<T,Model> createState() => _PaginatedCollectionBuilderState<T,Model>();
 }
 
-class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Model> extends State<PaginatedCollectionBuilder> {
+class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Model> extends State<PaginatedCollectionBuilder<_T, _Model>> {
 
   int _page = 1;
-  List<_Model> _data = [];
+  List<_Model> _secretData = [];
+
+  List<_Model> get _data{
+    return _secretData;
+  }
+  set _data(List<_Model> other){
+    _secretData = [
+      if(widget.filter != null)
+        ...widget.filter!([...other])
+      else
+        ...other
+    ];
+  }
+  
   bool get _isError => _status == TaskStatus.Error;
   StreamSubscription? _channel;
   TaskStatus _status = TaskStatus.Loading;
@@ -50,16 +65,19 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
   bool get _isLoadingMore => _data.isNotEmpty && isLoading;
   late ScrollController controller;
 
-  void addTaskListener(){
-    _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey)?.listen((event) { 
+  void addTaskListener()async{
+    await delay();
+    _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey)?.listen((event) async{ 
         if(mounted){
             final _taskStatus = event.status;
+            await delay();
             setState(() {
               _status = _taskStatus;
             });
             if(_taskStatus == TaskStatus.Success){
               setState(() {
-                _data = [...Provider.of<_T>(context, listen: false).dataSync];
+                _data = [...Provider.of<_T>(context, listen: false).dataSync.data];
+                _page = Provider.of<_T>(context, listen: false).dataSync.page;
               });
             }
         }
@@ -92,8 +110,8 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
   @override
     void initState(){
       super.initState();
-      _data = [...Provider.of<_T>(context, listen: false).dataSync];
-      _page = Provider.of<_T>(context, listen: false).page; 
+      _data = [...Provider.of<_T>(context, listen: false).dataSync.data];
+      _page = Provider.of<_T>(context, listen: false).dataSync.page; 
       controller = ScrollController();
       controller.addListener(_scrollListener);
       addTaskListener();

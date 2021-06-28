@@ -8,6 +8,6 @@ export 'package:manager/manager.dart' show Manager;
 part 'src/models/managerModel.dart';
 part 'src/models/task.dart';
 part 'src/widgets/managerBuilder.dart';
-part 'src/models/collectionManager.dart';
+part 'src/models/paginatedManager.dart';
 part 'src/widgets/paginatedCollectionBuilder.dart';
 const _kPaginatedTaskKey = 'pagino';
