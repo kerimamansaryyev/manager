@@ -52,7 +52,7 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
       notifyListeners();
     }
 
-   PaginatedManager():super(Pagination<Model>()){
+   PaginatedManager({Pagination<Model>? initialData}):super( initialData ?? Pagination<Model>() ){
      paginate();
    }
 
