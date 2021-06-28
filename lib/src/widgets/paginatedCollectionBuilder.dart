@@ -51,7 +51,7 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
   late ScrollController controller;
 
   void addTaskListener(){
-    _channel = Provider.of<_T>(context).taskState(_kPaginatedTaskKey)?.listen((event) { 
+    _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey)?.listen((event) { 
         if(mounted){
             final _taskStatus = event.status;
             setState(() {
