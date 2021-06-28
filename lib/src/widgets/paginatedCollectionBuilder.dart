@@ -94,6 +94,7 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
       super.initState();
       _data = [...Provider.of<_T>(context, listen: false).dataSync];
       _page = Provider.of<_T>(context, listen: false).page; 
+      controller = ScrollController();
       controller.addListener(_scrollListener);
       addTaskListener();
     }
@@ -101,6 +102,7 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
   @override
     void dispose(){
       _channel?.cancel();
+      controller.dispose();
       super.dispose();
     }
 
