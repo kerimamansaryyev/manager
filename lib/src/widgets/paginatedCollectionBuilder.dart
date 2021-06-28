@@ -42,7 +42,7 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
 
   int _page = 1;
   List<_Model> _data = [];
-  bool _isError = false;
+  bool get _isError => _status == TaskStatus.Error;
   StreamSubscription? _channel;
   TaskStatus _status = TaskStatus.Loading;
   bool get isLoading => _status == TaskStatus.Loading;
@@ -50,9 +50,19 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
   bool get _isLoadingMore => _data.isNotEmpty && isLoading;
   late ScrollController controller;
 
-  void addListener(){
+  void addTaskListener(){
     _channel = Provider.of<_T>(context).taskState(_kPaginatedTaskKey)?.listen((event) { 
-
+        if(mounted){
+            final _taskStatus = event.status;
+            setState(() {
+              _status = _taskStatus;
+            });
+            if(_taskStatus == TaskStatus.Success){
+              setState(() {
+                _data = [...Provider.of<_T>(context, listen: false).dataSync];
+              });
+            }
+        }
     });
   }
 
@@ -85,6 +95,13 @@ class _PaginatedCollectionBuilderState<_T extends CollectionManager<_Model>, _Mo
       _data = [...Provider.of<_T>(context, listen: false).dataSync];
       _page = Provider.of<_T>(context, listen: false).page; 
       controller.addListener(_scrollListener);
+      addTaskListener();
+    }
+
+  @override
+    void dispose(){
+      _channel?.cancel();
+      super.dispose();
     }
 
   @override
