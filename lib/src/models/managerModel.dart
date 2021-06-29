@@ -14,7 +14,7 @@ abstract class Manager<Model> extends ChangeNotifier{
   Map<String, Task<Model>> _tasks = {};
   Map<String, StreamSubscription> _listeners = {};
 
-  taskState(String key) => 
+  Stream<ManagerState<Model>> taskState(String key) => 
     CombineLatestStream.combine2<TaskResult<Model?>, Model, ManagerState<Model>>(
       _tasks[key]?.state ?? Stream.empty(), 
       value, (a, b) => ManagerState(state: b, taskResult: a)

@@ -69,7 +69,7 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
 
   void addTaskListener()async{
     await delay();
-    _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey)?.listen((event) async{ 
+    _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey).listen((event) async{ 
         if(mounted){
             final newManagerState = event.state;
             final _taskStatus = event.taskResult.status;
