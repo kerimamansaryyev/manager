@@ -7,10 +7,18 @@ abstract class Manager<Model> extends ChangeNotifier{
 
   Model get dataSync => _value;
 
+  Model transformer(Model newModel){
+    return newModel;
+  }
+
   Map<String, Task<Model>> _tasks = {};
   Map<String, StreamSubscription> _listeners = {};
 
-  Stream<ManagerState<Model>>? taskState(String key) => _tasks[key]?.state.zipWith<Model,ManagerState<Model>>(value, (t, s) => ManagerState(state: s, taskResult: t)); 
+  taskState(String key) => 
+    CombineLatestStream.combine2<TaskResult<Model?>, Model, ManagerState<Model>>(
+      _tasks[key]?.state ?? Stream.empty(), 
+      value, (a, b) => ManagerState(state: b, taskResult: a)
+    );
 
   Future<void> add(Task<Model> newTask,{bool shouldStart = true})async{
     try {
@@ -29,7 +37,7 @@ abstract class Manager<Model> extends ChangeNotifier{
       _tasks[newTask.key]!._register(); 
       _listeners[newTask.key] = _tasks[newTask.key]!.state.listen((event) {
         if(event.status == TaskStatus.Success && event.value != null)
-          value.add(event.value!);
+          value.add(transformer(event.value!));
       });
     }
     notifyListeners();
@@ -46,7 +54,7 @@ abstract class Manager<Model> extends ChangeNotifier{
       _tasks[taskID]!._register(); 
       _listeners[taskID] = _tasks[taskID]!.state.listen((event) {
         if(event.status == TaskStatus.Success && event.value != null)
-          value.add(event.value!);
+          value.add(transformer(event.value!));
       });
       notifyListeners();
     }

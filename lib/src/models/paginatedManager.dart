@@ -37,19 +37,19 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
 
 
   @override
-    valueListener(newData){
+    transformer(newData){
+      late Pagination<Model> valueCopy = Pagination( data: {..._value.data}, page: _value.page );
       if(newData.page == 0){
-        _value = newData;
+        valueCopy = newData;
       }
       else{
-        var length = _value.data.length+newData.data.length;
-        _value = Pagination<Model>(
-          data: {..._value.data, ...newData.data}, 
+        var length = valueCopy.data.length+newData.data.length;
+        valueCopy = Pagination<Model>(
+          data: {...valueCopy.data, ...newData.data}, 
           page: max(1, (length/perPage).truncate())
         );
       }
-      print(dataSync.data.length);
-      notifyListeners();
+      return valueCopy;
     }
 
    PaginatedManager({Pagination<Model>? initialData}):super( initialData ?? Pagination<Model>() ){
