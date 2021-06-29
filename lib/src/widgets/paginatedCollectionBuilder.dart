@@ -17,7 +17,8 @@ class PaginatedCollectionBuilder<T extends PaginatedManager<Model>, Model> exten
     this.pageFactor = 10,
     this.gridDelegate,
     this.filter,
-    this.emptyWidget = const SliverToBoxAdapter()
+    this.emptyWidget = const SliverToBoxAdapter(),
+    this.needbottomSpace = true
 
   }) 
     : super(key: key);
@@ -35,6 +36,7 @@ class PaginatedCollectionBuilder<T extends PaginatedManager<Model>, Model> exten
   final Widget Function(BuildContext context, Model model, int index) itemBuilder;
   final int pageFactor;
   final Widget emptyWidget;
+  final bool needbottomSpace;
 
   @override
   _PaginatedCollectionBuilderState<T,Model> createState() => _PaginatedCollectionBuilderState<T,Model>();
@@ -173,6 +175,7 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
            )..addAll(
              widget.after
            )..addAll([
+             if(widget.needbottomSpace)
              SliverToBoxAdapter(
                child: SizedBox(
                  height: (MediaQuery.of(context).size.height*0.1)/2,
