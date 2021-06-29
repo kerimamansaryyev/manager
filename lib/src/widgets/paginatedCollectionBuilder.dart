@@ -69,15 +69,15 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
     await delay();
     _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey)?.listen((event) async{ 
         if(mounted){
-            final _taskStatus = event.status;
-            await delay();
+            final newManagerState = event.state;
+            final _taskStatus = event.taskResult.status;
             setState(() {
               _status = _taskStatus;
             });
             if(_taskStatus == TaskStatus.Success){
               setState(() {
-                _data = [...Provider.of<_T>(context, listen: false).dataSync.data];
-                _page = Provider.of<_T>(context, listen: false).dataSync.page;
+                _data = [...newManagerState.data];
+                _page = newManagerState.page;
               });
             }
         }

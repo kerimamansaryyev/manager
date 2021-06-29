@@ -10,4 +10,5 @@ part 'src/models/task.dart';
 part 'src/widgets/managerBuilder.dart';
 part 'src/models/paginatedManager.dart';
 part 'src/widgets/paginatedCollectionBuilder.dart';
+part 'src/models/managerState.dart';
 const _kPaginatedTaskKey = 'pagino';

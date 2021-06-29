@@ -10,7 +10,7 @@ abstract class Manager<Model> extends ChangeNotifier{
   Map<String, Task<Model>> _tasks = {};
   Map<String, StreamSubscription> _listeners = {};
 
-  Stream<TaskResult<Model?>>? taskState(String key) => _tasks[key]?.state; 
+  Stream<ManagerState<Model>>? taskState(String key) => _tasks[key]?.state.zipWith<Model,ManagerState<Model>>(value, (t, s) => ManagerState(state: s, taskResult: t)); 
 
   Future<void> add(Task<Model> newTask,{bool shouldStart = true})async{
     try {
