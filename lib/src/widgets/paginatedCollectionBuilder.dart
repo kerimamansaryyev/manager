@@ -108,12 +108,19 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
     Provider.of<_T>(context, listen:  false).refresh();
   }
 
+  void initializeData()async{
+    await delay();
+    setState(() {
+      _data = [...Provider.of<_T>(context, listen: false).dataSync.data];
+      _page = Provider.of<_T>(context, listen: false).dataSync.page; 
+    });
+  }
+
 
   @override
     void initState(){
       super.initState();
-      _data = [...Provider.of<_T>(context, listen: false).dataSync.data];
-      _page = Provider.of<_T>(context, listen: false).dataSync.page; 
+      initializeData();
       controller = ScrollController();
       controller.addListener(_scrollListener);
       addTaskListener();
