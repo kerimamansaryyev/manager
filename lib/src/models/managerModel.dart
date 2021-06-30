@@ -89,7 +89,7 @@ abstract class Manager<Model> extends ChangeNotifier{
   }
 
   Manager(Model initialData): 
-  value = BehaviorSubject.seeded(initialData), 
+  value = BehaviorSubject.seeded(initialData, sync: true), 
   _value = initialData
   {
     value.listen(valueListener);

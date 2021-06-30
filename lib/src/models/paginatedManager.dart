@@ -25,6 +25,7 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
   }
 
   void refresh()async{
+     value.add(Pagination<Model>());
      await add(
        Task(
          computation: () async => Pagination<Model>(), 
