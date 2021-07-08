@@ -25,15 +25,17 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
   }
 
   void refresh()async{
-     value.add(Pagination<Model>());
-     await add(
-       Task(
-         computation: () async => Pagination<Model>(), 
-         key: _kPaginatedTaskKey
-       )
-     );
-     await delay();
-     paginate();
+    value.add(Pagination<Model>());
+    await add(
+      Task(
+        computation: () async{
+          await Future.delayed(Duration(seconds: 1));
+          return Pagination<Model>();
+        }, 
+        key: _kPaginatedTaskKey
+      )
+    );
+    paginate();
   }
 
 
