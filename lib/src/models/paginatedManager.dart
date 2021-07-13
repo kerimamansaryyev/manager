@@ -24,13 +24,6 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
     }
   }
 
-  void updatePagination(Set<Model> newSet){
-    value.add(
-        Pagination(data: {...newSet}, page: max(1, (newSet.length/perPage).truncate())
-      )
-    );   
-  }
-
   void refresh()async{
     value.add(Pagination<Model>());
     await add(
@@ -53,10 +46,10 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
         valueCopy = newData;
       }
       else{
-        var length = valueCopy.data.length+newData.data.length;
+        var merged = {...valueCopy.data, ...newData.data};
         valueCopy = Pagination<Model>(
-          data: {...valueCopy.data, ...newData.data}, 
-          page: max(1, (length/perPage).truncate())
+          data: merged, 
+          page: max(1, (merged.length/perPage).truncate())
         );
       }
       return valueCopy;
