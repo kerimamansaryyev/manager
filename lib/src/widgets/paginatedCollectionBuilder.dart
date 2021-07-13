@@ -80,9 +80,6 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
               setState(() {
                 _data = [...newManagerState.data];
                 _page = newManagerState.page;
-                if(_data.isEmpty){
-                  controller.jumpTo(1);
-                }
               });
             }
         }
