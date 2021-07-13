@@ -24,6 +24,13 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
     }
   }
 
+  void updatePagination(Set<Model> newSet){
+    value.add(
+        Pagination(data: {...newSet}, page: max(1, (newSet.length/perPage).truncate())
+      )
+    );   
+  }
+
   void refresh()async{
     value.add(Pagination<Model>());
     await add(
