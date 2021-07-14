@@ -68,7 +68,7 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
   late ScrollController controller;
 
   void addTaskListener()async{
-    await delay();
+     await delay();
     _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey).listen((event) async{ 
         if(mounted){
             final newManagerState = event.state;
@@ -98,13 +98,13 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
   void _loadMore()async{
     if( !isLoading && !_isLoadingMore && !_isError ){
       setState(() {
-        Provider.of<_T>(context, listen:  false).paginate();
+        Provider.of<_T>(context, listen:  false)._paginate();
       });
     }
   }
 
   void tryAgain(){
-    Provider.of<_T>(context, listen:  false).paginate();
+    Provider.of<_T>(context, listen:  false)._paginate();
   }
 
   void refresh(){
@@ -112,7 +112,6 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
   }
 
   void initializeData()async{
-    await delay();
     setState(() {
       _data = [...Provider.of<_T>(context, listen: false).dataSync.data];
       _page = Provider.of<_T>(context, listen: false).dataSync.page; 

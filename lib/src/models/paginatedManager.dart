@@ -13,9 +13,9 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
   int get perPage;
   Future<Pagination<Model>> Function(int page) get computatiion;
 
-  void paginate(){
+  void _paginate(){
     if( _value.data.length == perPage*_value.page){
-       add(
+       addTask(
          Task(
            computation: () => computatiion(_value.page+1),
             key: _kPaginatedTaskKey
@@ -26,7 +26,7 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
 
   void refresh()async{
     value.add(Pagination<Model>());
-    await add(
+    await addTask(
       Task(
         computation: () async{
           await Future.delayed(Duration(seconds: 1));
@@ -35,7 +35,7 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
         key: _kPaginatedTaskKey
       )
     );
-    paginate();
+    _paginate();
   }
 
 

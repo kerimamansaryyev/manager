@@ -20,7 +20,7 @@ abstract class Manager<Model> extends ChangeNotifier{
       value, (a, b) => ManagerState(state: b, taskResult: a)
     );
 
-  Future<void> add(Task<Model> newTask,{bool shouldStart = true})async{
+  Future<void> addTask(Task<Model> newTask,{bool shouldStart = true})async{
     try {
       await _tasks[newTask.key]?._cancelInnerFutureSubscription();
       await _listeners[newTask.key]?.cancel();
