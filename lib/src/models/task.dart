@@ -5,24 +5,14 @@ enum TaskStatus{
   Loading,
   Error,
   Success,
-
+  None
 }
-
-class TaskException implements Exception{
-
-  final String taskKey;
-  final String? errorLog;
-
-  TaskException({this.errorLog,required  this.taskKey});
-
-}
-
 
 class TaskResult<Model>{
 
   final TaskStatus status;
   final Model? value;
-  final TaskException? errorTrace;
+  final Exception? errorTrace;
 
   TaskResult({this.value, required this.status, this.errorTrace});
 
@@ -47,7 +37,7 @@ class Task<Model>{
            _stateController.add(TaskResult<Model>(status: TaskStatus.Success, value: event));
          }
        )..onError((e){
-         var trace = e is TaskException? e: null;
+         var trace = e is Exception? e: null;
          print('Error <$e> in Task:<$key>');
          if(!_stateController.isClosed)
          _stateController.add(TaskResult<Model?>(status: TaskStatus.Error, errorTrace: trace));
