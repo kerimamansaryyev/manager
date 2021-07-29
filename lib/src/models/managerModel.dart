@@ -11,10 +11,14 @@ abstract class Manager<Model> extends ChangeNotifier{
     return newModel;
   }
 
-  Map<String, Task<Model>> _tasks = {};
-  Map<String, StreamSubscription> _listeners = {};
+  Map<String, Task<Model>?> _tasks = {};
+  Map<String, StreamSubscription?> _listeners = {};
 
-  Stream<ManagerState<Model>> taskState(String key) => 
+  Task<Model>? getTaskByKey(String id) => _tasks[id]; 
+
+  Stream<TaskResult<Model?>>? taskStateOnly(String key) => _tasks[key]?.state;
+
+  Stream<ManagerState<Model>> taskStateWithLatestValue(String key) => 
     CombineLatestStream.combine2<TaskResult<Model?>, Model, ManagerState<Model>>(
       _tasks[key]?.state ?? Stream.empty(), 
       value, (a, b) => ManagerState(state: b, taskResult: a)
@@ -32,6 +36,7 @@ abstract class Manager<Model> extends ChangeNotifier{
     }
     else{
       _tasks[newTask.key]!.computation = newTask.computation;
+      _tasks[newTask.key]!._creationDate = DateTime.now();
     }
     if(shouldStart){
       _tasks[newTask.key]!._register(); 
@@ -52,6 +57,7 @@ abstract class Manager<Model> extends ChangeNotifier{
          print('Error in managers startTask function of $Model: $e');
       }
       _tasks[taskID]!._register(); 
+      _tasks[taskID]!._creationDate = DateTime.now();
       _listeners[taskID] = _tasks[taskID]!.state.listen((event) {
         if(event.status == TaskStatus.Success && event.value != null)
           value.add(transformer(event.value!));
@@ -70,6 +76,8 @@ abstract class Manager<Model> extends ChangeNotifier{
       yield Future(()async{
         await _listeners[key]?.cancel();
         await _tasks[key]?._destroy();
+        _tasks[key] = null;
+        _listeners[key] = null;
       });
     }
   }
@@ -81,6 +89,15 @@ abstract class Manager<Model> extends ChangeNotifier{
       } catch (e) {
       }
     }
+    notifyListeners();
+  }
+
+  Future<void> destroyTask(String taskId)async{
+    await _listeners[taskId]?.cancel();
+    await _tasks[taskId]?._destroy();
+    _listeners[taskId] = null;
+    _tasks[taskId] = null;
+    notifyListeners();
   }
 
   void valueListener(Model newValue){

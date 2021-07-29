@@ -11,7 +11,7 @@ class TaskObserverBuilder<T extends Manager<Model>, Model> extends StatelessWidg
     return Consumer<T>(
       builder: (context, manager, child) {
         return StreamBuilder<ManagerState<Model>>(
-            stream: manager.taskState(taskKey),
+            stream: manager.taskStateWithLatestValue(taskKey),
             builder: (context, snapshot) {
                final TaskStatus status = snapshot.data?.taskResult.status ?? TaskStatus.Loading;
                return builder(context, status, manager.dataSync, () => manager.refreshIfError(taskKey));

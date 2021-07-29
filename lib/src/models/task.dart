@@ -22,9 +22,10 @@ class TaskResult<Model>{
 class Task<Model>{
 
   final String key;
+  late DateTime _creationDate;
   BehaviorSubject<TaskResult<Model?>> _stateController = BehaviorSubject();
   Future<Model> Function() computation;
-  Stream<TaskResult<Model?>> get state => _stateController.stream;
+  Stream<TaskResult<Model?>> get state => _stateController;
   late StreamSubscription _subscriptionToFuture;
 
   void _register(){
@@ -52,18 +53,22 @@ class Task<Model>{
     return _subscriptionToFuture.cancel();
   }
 
-  Future<void> _destroy(){
+  Future<void> _destroy()async{
+    _stateController.add(TaskResult(status: TaskStatus.None));
+    await _subscriptionToFuture.cancel();
     return _stateController.close();
   }
 
   @override
     bool operator ==(other){
-      return other is Task<Model> && hashCode == other.hashCode;
+      return other is Task<Model> && hashCode == other.hashCode && other._creationDate.isAtSameMomentAs(_creationDate);
     }
   
   @override
     int get hashCode => key.hashCode;
 
-  Task({required this.computation, required this.key});
+  Task({required this.computation, required this.key}){
+    _creationDate = DateTime.now();
+  }
 
 }

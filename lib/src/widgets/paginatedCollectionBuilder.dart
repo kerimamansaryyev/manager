@@ -14,7 +14,6 @@ class PaginatedCollectionBuilder<T extends PaginatedManager<Model>, Model> exten
     required this.errorOnLoadMoreWidget,
     this.scrollPhysics,
     required this.itemBuilder,
-    this.pageFactor = 10,
     this.gridDelegate,
     this.filter,
     this.emptyWidget = const SliverToBoxAdapter(),
@@ -34,7 +33,6 @@ class PaginatedCollectionBuilder<T extends PaginatedManager<Model>, Model> exten
   final Widget Function(void Function() closure) errorOnLoadMoreWidget;
   final ScrollPhysics? scrollPhysics;
   final Widget Function(BuildContext context, Model model, int index) itemBuilder;
-  final int pageFactor;
   final Widget emptyWidget;
   final bool needbottomSpace;
 
@@ -42,7 +40,11 @@ class PaginatedCollectionBuilder<T extends PaginatedManager<Model>, Model> exten
   _PaginatedCollectionBuilderState<T,Model> createState() => _PaginatedCollectionBuilderState<T,Model>();
 }
 
-class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Model> extends State<PaginatedCollectionBuilder<_T, _Model>> {
+class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Model> extends State<PaginatedCollectionBuilder<_T, _Model>> 
+
+    with ManagerObserverMixin<PaginatedCollectionBuilder<_T, _Model>,_T, Task< Pagination<_Model>>?>
+
+{
 
   int _page = 1;
   List<_Model> _secretData = [];
@@ -66,28 +68,6 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
   bool get _isErrorOnLoadMore => _data.isNotEmpty && _isError;
   bool get _isLoadingMore => _data.isNotEmpty && isLoading;
   late ScrollController controller;
-
-  void addTaskListener()async{
-     await delay();
-    _channel = Provider.of<_T>(context, listen: false).taskState(_kPaginatedTaskKey).listen((event) async{ 
-        if(mounted){
-            final newManagerState = event.state;
-            final _taskStatus = event.taskResult.status;
-            setState(() {
-              _status = _taskStatus;
-            });
-            if(_taskStatus == TaskStatus.Success){
-              setState(() {
-                _data = [...newManagerState.data];
-                _page = newManagerState.page;
-                if(_data.isEmpty){
-                  controller.jumpTo(1);
-                }
-              });
-            }
-        }
-    });
-  }
 
   void _scrollListener() {
     if ( (controller.offset >= controller.position.maxScrollExtent)) {
@@ -120,12 +100,47 @@ class _PaginatedCollectionBuilderState<_T extends PaginatedManager<_Model>, _Mod
 
 
   @override
+    selector(_, man){
+      return man.getTaskByKey(_kPaginatedTaskKey);
+    }
+
+
+
+  @override
+    shouldUpdateListener(prev,next){
+      return prev != next;
+    }
+
+  @override
+    updateListener(){
+      _channel = Provider.of<_T>(context, listen: false).taskStateWithLatestValue(_kPaginatedTaskKey).listen((event) async{ 
+        if(mounted){
+            final newManagerState = event.state;
+            final _taskStatus = event.taskResult.status;
+            setState(() {
+              _status = _taskStatus;
+            });
+            if(_taskStatus == TaskStatus.Success){
+              setState(() {
+                _data = [...newManagerState.data];
+                _page = newManagerState.page;
+                if(_data.isEmpty){
+                  controller.jumpTo(1);
+                }
+              });
+            }
+        }
+    });
+    }
+
+
+  @override
     void initState(){
       super.initState();
       initializeData();
       controller = ScrollController();
       controller.addListener(_scrollListener);
-      addTaskListener();
+      updateListener();
     }
 
   @override
