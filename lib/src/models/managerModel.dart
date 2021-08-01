@@ -14,7 +14,14 @@ abstract class Manager<Model> extends ChangeNotifier{
   Map<String, Task<Model>?> _tasks = {};
   Map<String, StreamSubscription?> _listeners = {};
 
-  Task<Model>? getTaskByKey(String id) => _tasks[id]; 
+  Task<Model>? getTaskByKey(String id) =>_tasks[id] == null? null: Task<Model>(
+    computation: _tasks[id]!.computation, 
+    key: _tasks[id]!.key 
+  )
+    ?.._stateController = _tasks[id]!._stateController
+    .._creationDate = _tasks[id]!._creationDate
+    .._subscriptionToFuture = _tasks[id]!._subscriptionToFuture
+  ; 
 
   Stream<TaskResult<Model?>>? taskStateOnly(String key) => _tasks[key]?.state;
 

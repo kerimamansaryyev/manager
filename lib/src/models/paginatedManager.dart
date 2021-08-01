@@ -29,7 +29,6 @@ abstract class PaginatedManager<Model> extends Manager<Pagination<Model>>{
     await addTask(
       Task(
         computation: () async{
-          await Future.delayed(Duration(seconds: 1));
           return Pagination<Model>();
         }, 
         key: _kPaginatedTaskKey

@@ -28,6 +28,9 @@ class Task<Model>{
   Stream<TaskResult<Model?>> get state => _stateController;
   late StreamSubscription _subscriptionToFuture;
 
+  @visibleForTesting
+    DateTime get timeStamp => _creationDate;
+    
   void _register(){
     print(_stateController.isClosed);
     if(!_stateController.isClosed){

@@ -24,7 +24,7 @@ mixin ManagerObserverMixin<T extends StatefulWidget, M extends Manager, V> on St
   void initState() { 
     super.initState();
     manager = Provider.of<M>(context, listen: false);
-    _oldVal = selector(context, manager);
+    _oldVal = selector(context, Provider.of<M>(context, listen: false));
     manager.addListener(_updateListener);
   }
 
