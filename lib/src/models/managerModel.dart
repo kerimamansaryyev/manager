@@ -48,6 +48,7 @@ abstract class Manager<Model> extends ChangeNotifier{
     if(shouldStart){
       _tasks[newTask.key]!._register(); 
       _listeners[newTask.key] = _tasks[newTask.key]!.state.listen((event) {
+        listenerCallBack(event, newTask.key);
         if(event.status == TaskStatus.Success && event.value != null)
           value.add(transformer(event.value!));
       });
@@ -66,6 +67,7 @@ abstract class Manager<Model> extends ChangeNotifier{
       _tasks[taskID]!._register(); 
       _tasks[taskID]!._creationDate = DateTime.now();
       _listeners[taskID] = _tasks[taskID]!.state.listen((event) {
+        listenerCallBack(event, taskID);
         if(event.status == TaskStatus.Success && event.value != null)
           value.add(transformer(event.value!));
       });
@@ -111,6 +113,10 @@ abstract class Manager<Model> extends ChangeNotifier{
     _value = newValue;
     notifyListeners();
   }
+
+  void listenerCallBack(TaskResult<Model?> result, String taskKey){}
+
+  static Duration globalTaskTimeOut = Duration(minutes: 1); 
 
   Manager(Model initialData): 
   value = BehaviorSubject.seeded(initialData), 

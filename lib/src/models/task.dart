@@ -35,7 +35,7 @@ class Task<Model>{
     print(_stateController.isClosed);
     if(!_stateController.isClosed){
        _stateController.add(TaskResult(status: TaskStatus.Loading));
-       _subscriptionToFuture = computation().asStream().listen(
+       _subscriptionToFuture = computation().timeout(Manager.globalTaskTimeOut).asStream().listen(
          (event) {
            if(!_stateController.isClosed)
            _stateController.add(TaskResult<Model>(status: TaskStatus.Success, value: event));
