@@ -32,10 +32,17 @@ class Task<Model>{
     DateTime get timeStamp => _creationDate;
     
   void _register(){
-    print(_stateController.isClosed);
     if(!_stateController.isClosed){
        _stateController.add(TaskResult(status: TaskStatus.Loading));
-       _subscriptionToFuture = computation().timeout(Manager.globalTaskTimeOut).asStream().listen(
+       var _future = Future(()async{
+         try {
+           var newModel = await computation().timeout(Manager.globalTaskTimeOut);
+           return newModel;
+         } on TimeoutException catch (_) {
+           throw Exception('time exceeded');
+         }
+       });
+       _subscriptionToFuture = _future.asStream().listen(
          (event) {
            if(!_stateController.isClosed)
            _stateController.add(TaskResult<Model>(status: TaskStatus.Success, value: event));
