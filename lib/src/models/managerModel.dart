@@ -111,7 +111,7 @@ abstract class Manager<Model> extends ChangeNotifier{
 
   void valueListener(Model newValue){
     _value = newValue;
-    notifyListeners();
+    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {notifyListeners();});
   }
 
   void listenerCallBack(TaskResult<Model?> result, String taskKey){}
