@@ -118,14 +118,6 @@ abstract class Manager<Model> extends ChangeNotifier{
 
   static Duration globalTaskTimeOut = Duration(minutes: 1); 
 
-  @override 
-    notifyListeners(){
-      if(SchedulerBinding.instance != null) 
-        return SchedulerBinding.instance?.addPostFrameCallback((timeStamp) => super.notifyListeners());
-      else
-        return super.notifyListeners();
-    }
-
   Manager(Model initialData): 
   value = BehaviorSubject.seeded(initialData), 
   _value = initialData
