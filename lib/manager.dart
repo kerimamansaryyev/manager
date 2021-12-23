@@ -1,11 +1,11 @@
 library manager;
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:provider/provider.dart';
 export 'package:manager/manager.dart' show Manager;
+export 'package:manager/src/widgets/managerSelector.dart';
 part 'src/models/managerModel.dart';
 part 'src/models/task.dart';
 part 'src/widgets/managerBuilder.dart';
