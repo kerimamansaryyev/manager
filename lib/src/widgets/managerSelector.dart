@@ -37,5 +37,7 @@ class _ManagerSelectorState<M extends Manager, V> extends State<ManagerSelector<
   @override
   void updateListener() {
     widget.onUpdate();
+    if(mounted)
+      setState(() {});
   }
 }
