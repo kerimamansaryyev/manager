@@ -10,8 +10,8 @@ abstract class Manager<Model> extends ChangeNotifier {
     return newModel;
   }
 
-  Map<String, Task<Model>?> _tasks = {};
-  Map<String, StreamSubscription?> _listeners = {};
+  final Map<String, Task<Model>?> _tasks = {};
+  final Map<String, StreamSubscription?> _listeners = {};
 
   Task<Model>? getTaskByKey(String id) => _tasks[id] == null
       ? null
@@ -24,15 +24,17 @@ abstract class Manager<Model> extends ChangeNotifier {
 
   Stream<ManagerState<Model>> taskStateWithLatestValue(String key) =>
       CombineLatestStream.combine2<TaskResult<Model?>, Model,
-              ManagerState<Model>>(_tasks[key]?.state ?? Stream.empty(), value,
-          (a, b) => ManagerState(state: b, taskResult: a));
+              ManagerState<Model>>(_tasks[key]?.state ?? const Stream.empty(),
+          value, (a, b) => ManagerState(state: b, taskResult: a));
 
   Future<void> addTask(Task<Model> newTask, {bool shouldStart = true}) async {
     try {
       await _tasks[newTask.key]?._cancelInnerFutureSubscription();
       await _listeners[newTask.key]?.cancel();
     } catch (e) {
-      print('Error in managers addtask function of $Model: $e');
+      if (kDebugMode) {
+        print('Error in managers addtask function of $Model: $e');
+      }
     }
     if (_tasks[newTask.key] == null) {
       _tasks[newTask.key] = newTask;
@@ -43,8 +45,9 @@ abstract class Manager<Model> extends ChangeNotifier {
     if (shouldStart) {
       _tasks[newTask.key]!._register();
       _listeners[newTask.key] = _tasks[newTask.key]!.state.listen((event) {
-        if (event.status == TaskStatus.Success && event.value != null)
+        if (event.status == TaskStatus.Success && event.value != null) {
           value.add(transformer(event.value!));
+        }
         listenerCallBack(event, newTask.key);
       });
     }
@@ -57,14 +60,17 @@ abstract class Manager<Model> extends ChangeNotifier {
         await _tasks[taskID]?._cancelInnerFutureSubscription();
         await _listeners[taskID]?.cancel();
       } catch (e) {
-        print('Error in managers startTask function of $Model: $e');
+        if (kDebugMode) {
+          print('Error in managers startTask function of $Model: $e');
+        }
       }
       _tasks[taskID]!._register();
       _tasks[taskID]!._creationDate = DateTime.now();
       _listeners[taskID] = _tasks[taskID]!.state.listen((event) {
         listenerCallBack(event, taskID);
-        if (event.status == TaskStatus.Success && event.value != null)
+        if (event.status == TaskStatus.Success && event.value != null) {
           value.add(transformer(event.value!));
+        }
       });
       notifyListeners();
     }
@@ -90,6 +96,7 @@ abstract class Manager<Model> extends ChangeNotifier {
     await for (var process in _destroy()) {
       try {
         await process;
+        // ignore: empty_catches
       } catch (e) {}
     }
     notifyListeners();
@@ -110,7 +117,7 @@ abstract class Manager<Model> extends ChangeNotifier {
 
   void listenerCallBack(TaskResult<Model?> result, String taskKey) {}
 
-  static Duration globalTaskTimeOut = Duration(minutes: 1);
+  static Duration globalTaskTimeOut = const Duration(minutes: 1);
 
   Manager(Model initialData)
       : value = BehaviorSubject.seeded(initialData),
