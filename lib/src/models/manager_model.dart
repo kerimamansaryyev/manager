@@ -45,7 +45,8 @@ abstract class Manager<Model> extends ChangeNotifier {
     if (shouldStart) {
       _tasks[newTask.key]!._register();
       _listeners[newTask.key] = _tasks[newTask.key]!.state.listen((event) {
-        if (event.status == TaskStatus.Success && event.value != null) {
+        if (event.status == TaskStatus.Success &&
+            (event.value != null || _isModelNullable)) {
           value.add(transformer(event.value!));
         }
         listenerCallBack(event, newTask.key);
@@ -109,6 +110,8 @@ abstract class Manager<Model> extends ChangeNotifier {
     _tasks[taskId] = null;
     notifyListeners();
   }
+
+  bool get _isModelNullable => null is Model;
 
   void valueListener(Model newValue) {
     _value = newValue;
