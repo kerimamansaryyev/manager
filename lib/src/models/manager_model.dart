@@ -68,7 +68,8 @@ abstract class Manager<Model> extends ChangeNotifier {
       _tasks[taskID]!._register();
       _tasks[taskID]!._creationDate = DateTime.now();
       _listeners[taskID] = _tasks[taskID]!.state.listen((event) {
-        if (event.status == TaskStatus.Success && event.value != null) {
+        if (event.status == TaskStatus.Success &&
+            (event.value != null || _isModelNullable)) {
           value.add(transformer(event.value!));
         }
         listenerCallBack(event, taskID);
